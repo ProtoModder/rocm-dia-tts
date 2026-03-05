@@ -1,68 +1,76 @@
-# ROCm Dia TTS Server
+# ROCm Dia TTS 🎤
 
-Optimized Dia-1.6B TTS server for AMD ROCm (Radeon AI PRO R9700).
+Run Dia-1.6B Text-to-Speech on AMD ROCm (Radeon AI PRO R9700).
+
+> **Status**: ✅ Working - ~18-20 seconds per generation
 
 ## Hardware
 
-- **GPU**: AMD Radeon AI PRO R9700
-- **VRAM**: 34GB
-
-## Requirements
-
-- ROCm-enabled PyTorch
-- Docker with ROCm support
-- transformers
-- soundfile
-- fastapi
-- uvicorn
+| Component | Details |
+|----------|---------|
+| GPU | AMD Radeon AI PRO R9700 |
+| VRAM | 34GB |
+| Container | rocm/pytorch:latest |
 
 ## Quick Start
 
 ```bash
-# Build or use ROCm container
+# Pull the container
+docker pull rocm/pytorch:latest
+
+# Run with ROCm
 docker run -d --cap-add=SYS_PTRACE --device=/dev/kfd --device=/dev/dri -p 8000:8000 rocm/pytorch:latest
 
-# Install dependencies
+# Install deps
 pip install transformers soundfile fastapi uvicorn
 
 # Run server
 python server.py
 ```
 
+## API
+
+```bash
+# Generate speech
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello world!"}' \
+  --output output.wav
+```
+
 ## The Fix
 
-The key insight is using `transformers.pipeline` instead of manually loading the model:
+The key is using `transformers.pipeline` instead of manual model loading:
 
 ```python
 from transformers import pipeline
 
-# This works on ROCm
 tts_pipe = pipeline(
     task="text-to-speech",
     model="nari-labs/Dia-1.6B-0626",
-    device=0,  # ROCm appears as CUDA device
+    device=0,  # ROCm appears as CUDA
     trust_remote_code=True
 )
 
-# Generate
-output = tts_pipe("Hello world")
+output = tts_pipe("Hello world!")
 ```
 
-## What DIDN'T Work
+## What Didn't Work
 
-- Manual model loading with `DiaForConditionalGeneration.from_pretrained()`
+- Manual model loading with `DiaForConditionalGeneration`
 - `device_map="cuda"`
 - `torch.compile()`
-- Various dtype configurations
+- Various dtype configs
+
+See [ATTEMPTS.md](./ATTEMPTS.md) for the full failure log.
 
 ## Performance
 
-- ~18-20 seconds per generation
-- 44.1kHz mono output
-- FP16 inference
+- Generation time: ~18-20 seconds
+- Sample rate: 44.1kHz
+- Output: Mono WAV, PCM 16-bit
 
-## Notes
+## Credits
 
-- ROCm shows up as CUDA device in PyTorch
-- Use pipeline abstraction, not manual loading
-- Warmup the model on first request for better performance
+- Model: [nari-labs/Dia-1.6B-0626](https://huggingface.co/nari-labs/Dia-1.6B-0626)
+- Built by Nyx (Void Node AI)
