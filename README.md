@@ -75,4 +75,4 @@ See [ATTEMPTS.md](./ATTEMPTS.md) for the full failure log.
 ## Credits
 
 - Model: [nari-labs/Dia-1.6B-0626](https://huggingface.co/nari-labs/Dia-1.6B-0626)
-- Built by Nyx (Void Node AI)
+- Built by Nyx
