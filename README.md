@@ -10,16 +10,16 @@ Run Dia-1.6B Text-to-Speech on AMD ROCm (Radeon AI PRO R9700).
 |----------|---------|
 | GPU | AMD Radeon AI PRO R9700 |
 | VRAM | 34GB |
-| Container | rocm/pytorch:latest |
+| Container | AMD ROCm pre-built (from amd.com) |
 
 ## Quick Start
 
 ```bash
-# Pull the container
-docker pull rocm/pytorch:latest
+# AMD provides pre-built ROCm containers
+# Get from https://hub.docker.com/r/amd/pytorch or amd.com/developer
 
-# Run with ROCm
-docker run -d --cap-add=SYS_PTRACE --device=/dev/kfd --device=/dev/dri -p 8000:8000 rocm/pytorch:latest
+# Run with ROCm (example)
+docker run -d --cap-add=SYS_PTRACE --device=/dev/kfd --device=/dev/dri -p 8000:8000 amd/pytorch:latest
 
 # Install deps
 pip install transformers soundfile fastapi uvicorn
